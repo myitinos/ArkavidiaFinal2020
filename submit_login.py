@@ -1,5 +1,6 @@
 import requests
 import multiprocessing
+from time import sleep
 from pwn import *
 
 context.log_level = "error"
@@ -19,10 +20,6 @@ def exploit(team: str = 10):
 
 
 def submit(flag: str):
-    credentials = {
-        "team": "mentimun_mentah",
-        "token": "pzZ3KHJk",
-    }
     headers = {
         "Authorization": "mtUJh44ViZCilVOh_QMvdoSpcoSxURLU_wcrQuq_-sFFFHR_aw7mMQ"}
     with requests.Session() as s:
@@ -34,17 +31,21 @@ def submit(flag: str):
 
 
 def main():
-    with multiprocessing.Pool() as p:
-        flags = p.map(exploit, range(1, 12))
+    ticks = 10 * 60
+    while True:
+        with multiprocessing.Pool() as p:
+            flags = p.map(exploit, range(1, 12))
 
-    flags = list(set(flags))
-    print(type(flags[0]))
-    print(flags)
+        flags = list(set(flags))
+        flags.remove("")
+        # print(type(flags[0]))
+        print(flags)
 
-    with multiprocessing.Pool() as p:
-        response = p.map(submit, flags)
+        with multiprocessing.Pool() as p:
+            response = p.map(submit, flags)
 
-    print(response)
+        print(response)
+        sleep(ticks)
 
 
 if __name__ == "__main__":
